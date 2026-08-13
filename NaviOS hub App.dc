@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NaviOS">
+<meta name="theme-color" content="#1b1917">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#1b1917;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter Tight",system-ui,sans-serif;color:#f2ede9}
+  *{box-sizing:border-box}
+  a{color:#e2823f}a:hover{color:#f2a672}
+  ::selection{background:rgba(226,130,63,.35)}
+  :focus{outline:none}
+  :focus-visible{outline:2px solid #e2823f;outline-offset:2px}
+  input::placeholder{color:#6f6863}
+  @keyframes nvpulse{0%,100%{opacity:1}50%{opacity:.2}}
+  @keyframes nvsweep{0%{transform:translateX(-110%)}100%{transform:translateX(420%)}}
+  @keyframes nvrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div style="min-height:100dvh;background:#1b1917;display:flex;justify-content:center">
+<div style="width:100%;max-width:520px;display:flex;flex-direction:column;padding:0 18px calc(30px + env(safe-area-inset-bottom))">
+
+  <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 2px 12px;position:sticky;top:0;background:#1b1917;z-index:5">
+    <img src="icons/navios-mark.png" alt="" style="width:24px;height:24px;flex:none" />
+    <span style="font-size:15px;font-weight:600;letter-spacing:-.01em">NaviOS Hub</span>
+    <span style="display:flex;align-items:center;gap:7px;margin-left:auto;background:{{ agentChipBg }};border:1px solid {{ agentChipBd }};border-radius:999px;padding:5px 12px 5px 9px">
+      <span style="width:6px;height:6px;border-radius:50%;flex:none;background:{{ agentDot }};animation:{{ agentAnim }}"></span>
+      <span style="font-size:11.5px;font-weight:500;color:{{ agentTxt }};white-space:nowrap">{{ agentLabel }}</span>
+    </span>
+  </div>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+
+    <div style="padding:18px 2px 2px">
+      <div style="font-family:'Source Serif 4',Georgia,serif;font-size:32px;line-height:1.14;letter-spacing:-.015em">{{ greeting }}</div>
+      <div style="font-size:14px;color:#9a938d;margin-top:8px;line-height:1.5;text-wrap:pretty">{{ tagline }}</div>
+    </div>
+
+    <button onClick="{{ runScan }}" style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#e2823f;border:0;border-radius:16px;padding:17px 18px;cursor:pointer;font-family:inherit;color:#2a1409" style-hover="background:#eb9256" style-active="background:#c25a2c">
+      <span style="flex:1;min-width:0">
+        <span style="display:block;font-size:16px;font-weight:600;letter-spacing:-.01em">{{ scanCta }}</span>
+        <span style="display:block;font-size:12.5px;opacity:.75;margin-top:2px">{{ scanCtaMeta }}</span>
+      </span>
+      <span style="width:30px;height:30px;flex:none;border-radius:50%;background:rgba(42,20,9,.17);display:grid;place-items:center;font-size:14px;font-weight:600">&rarr;</span>
+    </button>
+
+    <sc-if value="{{ scanning }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#232120;border:1px solid #322e2b;border-radius:14px;padding:14px 16px">
+        <div style="display:flex;gap:10px;font-size:12.5px;color:#c9c2bc"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ scanStep }}</span><span style="margin-left:auto;color:#9a938d">{{ scanPctLabel }}</span></div>
+        <div style="height:5px;background:#332f2c;border-radius:99px;margin-top:11px;overflow:hidden">
+          <div style="height:100%;background:#e2823f;border-radius:99px;width:{{ scanPctWidth }};transition:width .3s ease"></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+        <div style="background:#232120;border:1px solid #322e2b;border-radius:14px;padding:14px 15px">
+          <div style="font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#8c857f">{{ t.label }}</div>
+          <div style="font-family:'Source Serif 4',Georgia,serif;font-size:26px;line-height:1.15;margin-top:7px;color:{{ t.color }}">{{ t.value }}</div>
+          <div style="font-size:12px;color:#8c857f;margin-top:3px">{{ t.note }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;padding:6px 2px 0">
+      <span style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#8c857f">Diagnostics</span>
+      <span style="margin-left:auto;display:flex;gap:13px;font-size:11px;color:#8c857f">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#7d8a72"></span>On device</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:#e2823f"></span>Agent</span>
+      </span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ modules }}" as="m" hint-placeholder-count="10">
+        <button onClick="{{ m.open }}" style="display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:#232120;border:1px solid #322e2b;border-radius:14px;padding:13px 15px;cursor:pointer;font-family:inherit;color:#f2ede9" style-hover="background:#2b2826;border-color:#443d38">
+          <span style="width:34px;height:34px;flex:none;border-radius:10px;background:{{ m.iconBg }};display:grid;place-items:center;font-size:15px;color:{{ m.iconFg }}">{{ m.glyph }}</span>
+          <span style="min-width:0;flex:1">
+            <span style="display:block;font-size:14.5px;font-weight:600;letter-spacing:-.01em">{{ m.name }}</span>
+            <span style="display:block;font-size:12.5px;color:#8c857f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.note }}</span>
+          </span>
+          <span style="font-size:13.5px;font-weight:600;text-align:right;white-space:nowrap;color:{{ m.color }}">{{ m.value }}</span>
+          <span style="color:#5d5751;flex:none;font-size:16px">&rsaquo;</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showInstallHint }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#2a211c;border:1px solid #46352c;border-radius:14px;padding:14px 16px">
+        <div style="font-size:12.5px;font-weight:600;color:#e2823f">Running in the browser</div>
+        <div style="font-size:12.5px;color:#b3aaa3;margin-top:5px;line-height:1.5;text-wrap:pretty">Share &rarr; Add to Home Screen. Notifications, offline use and the plug-in trigger only work once it's installed.</div>
+      </div>
+    </sc-if>
+
+    <button onClick="{{ openSettings }}" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:1px solid #322e2b;border-radius:14px;padding:13px 15px;cursor:pointer;font-family:inherit;color:#b3aaa3;font-size:13.5px" style-hover="background:#232120;color:#f2ede9">
+      <span>Agent, trigger &amp; permissions</span><span style="margin-left:auto;color:#5d5751;font-size:16px">&rsaquo;</span>
+    </button>
+
+    <div style="font-size:11.5px;color:#6f6863;line-height:1.6;padding:0 2px;text-wrap:pretty">{{ footNote }}</div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 2px 0">
+      <button onClick="{{ goHome }}" style="width:34px;height:34px;flex:none;border-radius:10px;background:#232120;border:1px solid #322e2b;color:#f2ede9;cursor:pointer;font-size:15px;font-family:inherit" style-hover="background:#2b2826">&larr;</button>
+      <span style="font-family:'Source Serif 4',Georgia,serif;font-size:23px;letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ detailTitle }}</span>
+      <span style="margin-left:auto;flex:none;font-size:10.5px;font-weight:500;padding:4px 10px;border-radius:999px;color:{{ detailSourceFg }};background:{{ detailSourceBg }}">{{ detailSource }}</span>
+    </div>
+
+    <sc-if value="{{ detailBlocked }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#2a211c;border:1px solid #46352c;border-radius:14px;padding:15px 16px">
+        <div style="font-size:13px;font-weight:600;color:#e2823f">Companion agent required</div>
+        <div style="font-size:12.5px;color:#b3aaa3;margin-top:6px;line-height:1.5;text-wrap:pretty">{{ detailBlockedWhy }}</div>
+        <button onClick="{{ openSettings }}" style="margin-top:12px;background:#e2823f;border:0;border-radius:10px;color:#2a1409;font-size:12.5px;font-weight:600;padding:10px 14px;cursor:pointer;font-family:inherit" style-hover="background:#eb9256">Pair the agent</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasGauge }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#232120;border:1px solid #322e2b;border-radius:16px;padding:18px">
+        <div style="display:flex;align-items:flex-end;gap:13px">
+          <div style="font-family:'Source Serif 4',Georgia,serif;font-size:48px;line-height:.95;letter-spacing:-.02em;color:{{ gaugeColor }}">{{ gaugeValue }}</div>
+          <div style="font-size:12.5px;color:#9a938d;padding-bottom:5px;line-height:1.45;text-wrap:pretty">{{ gaugeCaption }}</div>
+        </div>
+        <div style="height:9px;background:#332f2c;border-radius:99px;margin-top:16px;display:flex;overflow:hidden">
+          <sc-for list="{{ gaugeSegs }}" as="g" hint-placeholder-count="3">
+            <div style="height:100%;width:{{ g.w }};background:{{ g.c }}"></div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:12px">
+          <sc-for list="{{ gaugeSegs }}" as="g" hint-placeholder-count="3">
+            <span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#9a938d"><span style="width:7px;height:7px;border-radius:2px;flex:none;background:{{ g.c }}"></span>{{ g.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#232120;border:1px solid #322e2b;border-radius:16px;overflow:hidden">
+        <sc-for list="{{ detailRows }}" as="r" hint-placeholder-count="8">
+          <div style="display:flex;align-items:baseline;gap:14px;padding:12px 16px;border-bottom:1px solid #2b2826">
+            <span style="font-size:13px;color:#8c857f;flex:1;min-width:0">{{ r.k }}</span>
+            <span style="font-size:13px;font-weight:500;text-align:right;word-break:break-word;color:{{ r.c }}">{{ r.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasConsole }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#232120;border:1px solid #322e2b;border-radius:16px;overflow:hidden">
+        <div style="display:flex;gap:8px;padding:13px 14px;align-items:center">
+          <button onClick="{{ toggleConsole }}" style="background:#e2823f;border:0;border-radius:9px;color:#2a1409;font-size:12.5px;font-weight:600;padding:9px 13px;cursor:pointer;font-family:inherit" style-hover="background:#eb9256">{{ consoleCta }}</button>
+          <button onClick="{{ clearConsole }}" style="background:transparent;border:1px solid #3d3833;border-radius:9px;color:#b3aaa3;font-size:12.5px;font-weight:500;padding:9px 13px;cursor:pointer;font-family:inherit" style-hover="background:#2b2826;color:#f2ede9">Clear</button>
+          <span style="margin-left:auto;font-size:11.5px;color:#8c857f">{{ consoleCount }}</span>
+        </div>
+        <div style="background:#141211;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;line-height:1.7;color:#9fb39a;padding:13px 14px;max-height:300px;overflow:auto">
+          <sc-for list="{{ consoleLines }}" as="l" hint-placeholder-count="6">
+            <div style="white-space:pre-wrap;word-break:break-all">{{ l }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasAction }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button onClick="{{ detailAction }}" style="display:flex;align-items:center;width:100%;text-align:left;background:#e2823f;border:0;border-radius:14px;padding:15px 18px;cursor:pointer;font-family:inherit;color:#2a1409;font-size:15px;font-weight:600" style-hover="background:#eb9256" style-active="background:#c25a2c">{{ detailActionLabel }}</button>
+        <div style="font-size:11.5px;color:#6f6863;line-height:1.6;padding:0 2px;text-wrap:pretty">{{ detailActionNote }}</div>
+      </div>
+    </sc-if>
+
+    <div style="font-size:11.5px;color:#6f6863;line-height:1.6;padding:2px 2px 0;border-top:1px solid #2b2826;padding-top:13px;text-wrap:pretty">{{ detailFoot }}</div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:13px">
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 2px 0">
+      <button onClick="{{ goHome }}" style="width:34px;height:34px;flex:none;border-radius:10px;background:#232120;border:1px solid #322e2b;color:#f2ede9;cursor:pointer;font-size:15px;font-family:inherit" style-hover="background:#2b2826">&larr;</button>
+      <span style="font-family:'Source Serif 4',Georgia,serif;font-size:23px;letter-spacing:-.01em">Settings</span>
+    </div>
+
+    <div style="background:#232120;border:1px solid #322e2b;border-radius:16px;padding:16px">
+      <div style="font-size:14px;font-weight:600">Companion agent</div>
+      <div style="font-size:12.5px;color:#9a938d;margin-top:5px;line-height:1.5;text-wrap:pretty">Paste the pairing URL the agent prints on your computer. Both devices need to be on the same network.</div>
+      <input value="{{ agentUrlDraft }}" onInput="{{ onAgentUrl }}" placeholder="ws://mac.local:8787/ws?token=…" spellcheck="false" autocapitalize="off" autocorrect="off" style="width:100%;margin-top:12px;background:#1b1917;border:1px solid #3d3833;border-radius:10px;padding:11px 12px;color:#f2ede9;font-family:ui-monospace,Menlo,monospace;font-size:12px" />
+      <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+        <button onClick="{{ saveAgent }}" style="background:#e2823f;border:0;border-radius:10px;color:#2a1409;font-size:12.5px;font-weight:600;padding:10px 15px;cursor:pointer;font-family:inherit" style-hover="background:#eb9256">Connect</button>
+        <button onClick="{{ forgetAgent }}" style="background:transparent;border:1px solid #3d3833;border-radius:10px;color:#b3aaa3;font-size:12.5px;font-weight:500;padding:10px 15px;cursor:pointer;font-family:inherit" style-hover="background:#2b2826;color:#f2ede9">Forget</button>
+      </div>
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;margin-top:12px;line-height:1.5;word-break:break-word;color:{{ agentDot }}">{{ agentDetail }}</div>
+    </div>
+
+    <div style="background:#232120;border:1px solid #322e2b;border-radius:16px;padding:16px">
+      <div style="font-size:14px;font-weight:600">Plug-in trigger</div>
+      <div style="font-size:12.5px;color:#9a938d;margin-top:5px;line-height:1.5;text-wrap:pretty">When the agent sees your iPhone attach, it pushes a notification and this app opens straight into a full scan.</div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button onClick="{{ askNotify }}" style="background:#e2823f;border:0;border-radius:10px;color:#2a1409;font-size:12.5px;font-weight:600;padding:10px 15px;cursor:pointer;font-family:inherit" style-hover="background:#eb9256">{{ notifyCta }}</button>
+        <button onClick="{{ simulateAttach }}" style="background:transparent;border:1px solid #3d3833;border-radius:10px;color:#b3aaa3;font-size:12.5px;font-weight:500;padding:10px 15px;cursor:pointer;font-family:inherit" style-hover="background:#2b2826;color:#f2ede9">Preview it</button>
+      </div>
+    </div>
+
+    <div style="background:#232120;border:1px solid #322e2b;border-radius:16px;overflow:hidden">
+      <sc-for list="{{ settingsInfo }}" as="r" hint-placeholder-count="6">
+        <div style="display:flex;align-items:baseline;gap:14px;padding:12px 16px;border-bottom:1px solid #2b2826">
+          <span style="font-size:13px;color:#8c857f;flex:1;min-width:0">{{ r.k }}</span>
+          <span style="font-size:13px;font-weight:500;text-align:right;word-break:break-word">{{ r.v }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="font-size:11.5px;color:#6f6863;line-height:1.6;padding:0 2px;text-wrap:pretty">The agent binds your local network only and every socket needs its token. Backups and spyware analysis run and stay on the computer — nothing is uploaded anywhere.</div>
+  </div>
+  </sc-if>
+
+</div>
+</div>
+
+<sc-if value="{{ attachOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:60;background:#1b1917;display:flex;flex-direction:column;justify-content:center;padding:34px 28px calc(34px + env(safe-area-inset-bottom));animation:nvrise .3s ease-out">
+    <img src="icons/navios-mark.png" alt="" style="width:44px;height:44px" />
+    <div style="font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#e2823f;margin-top:24px">Connected over USB</div>
+    <div style="font-family:'Source Serif 4',Georgia,serif;font-size:38px;line-height:1.08;letter-spacing:-.02em;margin-top:10px;text-wrap:balance">{{ attachTitle }}</div>
+    <div style="font-size:15px;color:#9a938d;margin-top:10px;line-height:1.5;text-wrap:pretty">{{ attachSub }}</div>
+    <div style="height:4px;background:#2b2826;border-radius:99px;margin-top:26px;overflow:hidden">
+      <div style="height:100%;width:28%;background:#e2823f;border-radius:99px;animation:nvsweep 1.5s linear infinite"></div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:26px;flex-wrap:wrap">
+      <button onClick="{{ attachScanNow }}" style="background:#e2823f;border:0;border-radius:12px;color:#2a1409;font-family:inherit;font-size:14px;font-weight:600;padding:14px 20px;cursor:pointer" style-hover="background:#eb9256">Scan now</button>
+      <button onClick="{{ attachDismiss }}" style="background:transparent;border:1px solid #3d3833;border-radius:12px;color:#b3aaa3;font-family:inherit;font-size:14px;font-weight:500;padding:14px 20px;cursor:pointer" style-hover="background:#232120;color:#f2ede9">Not now</button>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;ownerName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Shaya&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;App&quot;},&quot;autoScanOnAttach&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+const GB = 1073741824;
+const fmt = b => b == null ? '—' : b >= GB ? (b/GB).toFixed(b/GB >= 100 ? 0 : 1) + ' GB' : (b/1048576).toFixed(0) + ' MB';
+const SCREENS = {
+  '440x956':'iPhone 16 Pro Max','402x874':'iPhone 16 Pro','430x932':'iPhone 15 Pro Max class',
+  '393x852':'iPhone 15 Pro class','428x926':'iPhone 12–14 Pro Max class','390x844':'iPhone 12–14 class',
+  '375x812':'iPhone X / 13 mini class','414x896':'iPhone XR / 11 class','375x667':'iPhone SE / 8 class'
+};
+// Stand-ins for the panels only the agent can fill. Every one is tagged "sample" in the UI.
+const SAMPLE = {
+  info:{name:'Shaya\u2019s iPhone',marketing:'iPhone 16 Pro',model:'iPhone17,1',ios:'18.5',build:'22F76',
+    serial:'F2LX8Q3RPN7K',udid:'00008130-001A2C3E0A81401E',chip:'t8140',cpu:'arm64e',ecid:'7381029465120',
+    region:'LL/A',modelNumber:'MYNC3',activated:true,supervised:false,passcodeSet:true,
+    wifiMac:'d0:81:7a:4c:19:e2',btMac:'d0:81:7a:4c:19:e5'},
+  battery:{percent:74,charging:true,cycles:218,designCapacity:3582,fullCapacity:3419,health:95.4,
+    amperage:1240,voltage:4021,temperature:29.4,minTemp:4.5,maxTemp:41.2,serial:'F8Y3D1K0QX2',manufacturer:'SWD-ATL'},
+  storage:{total:256*GB,dataTotal:244*GB,free:61.4*GB,apps:118*GB,photos:44*GB,media:12*GB,other:8.6*GB},
+  backups:{last:'2 days ago',size:87.2*GB,encrypted:true,count:6,oldest:'Mar 2026',target:'~/.navios-hub/backups'},
+  warranty:{covered:true,plan:'AppleCare+',expires:'14 Nov 2026',days:94,repairs:1},
+  spyware:{clean:true,indicators:1482,sets:6,ts:'Not yet run on this device'}
+};
+const INK='#f2ede9', MUT='#8c857f', ACC='#e2823f', GOOD='#9fb39a', WARN='#e0a04a';
+
+class Component extends DCLogic {
+  state = { view:'home', probe:{}, agent:{status:'idle',detail:'No agent paired yet.'}, agentUrl:'', urlDraft:'',
+    data:{}, scanning:false, pct:0, step:'', lastScan:null, lines:[], consoleOn:false, attach:null,
+    notify:'default', motion:null, sensorMsg:'' };
+  ws=null; pending=new Map(); seq=0; reconnect=null;
+
+  componentDidMount(){
+    this.probe();
+    let saved=''; try{ saved=localStorage.getItem('navios.agentUrl')||''; }catch(_){}
+    if(saved) this.setState({agentUrl:saved,urlDraft:saved},()=>this.connect(saved));
+    if(typeof Notification!=='undefined') this.setState({notify:Notification.permission});
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+      this.onMsg = e => { if(e.data&&e.data.type==='navios:attach') this.onAttach({device:null},e.data.autoscan); };
+      navigator.serviceWorker.addEventListener('message',this.onMsg);
+    }
+    const q=new URLSearchParams(location.search);
+    if(q.get('view')) this.setState({view:q.get('view')});
+    if(q.get('autoscan')) setTimeout(()=>this.runScan(),600);
+  }
+  componentWillUnmount(){
+    if(this.onMsg) navigator.serviceWorker?.removeEventListener('message',this.onMsg);
+    clearTimeout(this.reconnect); clearTimeout(this.attachTimer); try{this.ws?.close();}catch(_){}
+  }
+
+  /* ---- what Safari will actually tell us about this phone ---- */
+  async probe(){
+    const p={};
+    const w=Math.min(screen.width,screen.height), h=Math.max(screen.width,screen.height);
+    p.screen=w+' × '+h+' pt'; p.dpr=window.devicePixelRatio||1;
+    p.pixels=Math.round(w*p.dpr)+'×'+Math.round(h*p.dpr);
+    p.modelGuess=SCREENS[w+'x'+h]||'Unrecognised screen size';
+    const m=navigator.userAgent.match(/OS (\d+)[._](\d+)(?:[._](\d+))?/);
+    p.ios=m?m[1]+'.'+m[2]+(m[3]?'.'+m[3]:''):null;
+    p.threads=navigator.hardwareConcurrency||null;
+    p.langs=(navigator.languages||[]).slice(0,3).join(', ');
+    p.standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+    p.online=navigator.onLine;
+    p.gamut=window.matchMedia('(color-gamut: p3)').matches?'Display P3':'sRGB';
+    p.hdr=window.matchMedia('(dynamic-range: high)').matches;
+    p.touch=navigator.maxTouchPoints;
+    p.tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    try{ const gl=document.createElement('canvas').getContext('webgl');
+      const d=gl&&gl.getExtension('WEBGL_debug_renderer_info');
+      p.gpu=d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):(gl?gl.getParameter(gl.RENDERER):null);
+    }catch(_){}
+    try{ const e=await navigator.storage.estimate(); p.quota=e.quota; p.usage=e.usage;
+      p.persisted=await navigator.storage.persisted?.(); }catch(_){}
+    try{ const d=await navigator.mediaDevices.enumerateDevices();
+      p.cams=d.filter(x=>x.kind==='videoinput').length; p.mics=d.filter(x=>x.kind==='audioinput').length; }catch(_){}
+    const c=navigator.connection; if(c){ p.netType=c.effectiveType; p.downlink=c.downlink; p.rtt=c.rtt; }
+    const t0=performance.now();
+    try{ await fetch(location.href,{method:'HEAD',cache:'no-store'}); p.latency=Math.round(performance.now()-t0); }catch(_){ p.latency=null; }
+    this.setState({probe:p});
+  }
+
+  async sensorTest(){
+    try{
+      if(typeof DeviceMotionEvent?.requestPermission==='function'){
+        const r=await DeviceMotionEvent.requestPermission();
+        if(r!=='granted') return this.setState({sensorMsg:'Motion access denied — allow it in Settings › Apps › Safari.'});
+      }
+      this.setState({sensorMsg:'Reading… hold still, then tilt the phone.'});
+      let n=0,peak=0,acc=false,gyro=false;
+      const h=e=>{ n++;
+        const a=e.accelerationIncludingGravity;
+        if(a&&a.x!=null){acc=true;peak=Math.max(peak,Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z));}
+        if(e.rotationRate&&e.rotationRate.alpha!=null) gyro=true;
+      };
+      window.addEventListener('devicemotion',h);
+      setTimeout(()=>{ window.removeEventListener('devicemotion',h);
+        if(n===0) this.setState({sensorMsg:'No motion events — the browser has no sensor access here.'});
+        else this.setState({motion:{samples:n,hz:Math.round(n/3),acc,gyro,peak:peak.toFixed(1)},sensorMsg:''});
+      },3000);
+    }catch(e){ this.setState({sensorMsg:String(e.message||e)}); }
+  }
+
+  /* ---- agent socket ---- */
+  connect(url){
+    if(!url) return;
+    clearTimeout(this.reconnect); try{this.ws?.close();}catch(_){}
+    this.setState({agent:{status:'connecting',detail:'Reaching '+url.replace(/\?token=.*/,'')+' …'}});
+    let ws; try{ ws=new WebSocket(url); }catch(e){ return this.setState({agent:{status:'error',detail:String(e.message||e)}}); }
+    this.ws=ws;
+    ws.onopen=()=>this.setState({agent:{status:'connected',detail:'Paired. Listening for device events.'}});
+    ws.onclose=ev=>{
+      const bad=ev.code===4401;
+      this.setState({agent:{status:bad?'error':'offline',detail:bad?'Token rejected — copy the pairing URL again.':'Agent unreachable. Retrying every 5s…'}});
+      if(!bad) this.reconnect=setTimeout(()=>this.connect(this.state.agentUrl),5000);
+    };
+    ws.onerror=()=>{};
+    ws.onmessage=e=>{
+      let m; try{ m=JSON.parse(e.data); }catch(_){ return; }
+      if(m.type==='device.attached') return this.onAttach(m,true);
+      if(m.type==='device.detached') return this.setState(s=>({data:{...s.data,info:null}}));
+      if(m.type==='stream') return this.setState(s=>({lines:[...s.lines.slice(-400),m.line]}));
+      const p=this.pending.get(m.id);
+      if(p){ this.pending.delete(m.id); m.ok?p.res(m.data):p.rej(new Error(m.error)); }
+    };
+  }
+  send(cmd,args={}){
+    return new Promise((res,rej)=>{
+      if(this.ws?.readyState!==1) return rej(new Error('agent offline'));
+      const id=++this.seq; this.pending.set(id,{res,rej});
+      this.ws.send(JSON.stringify({id,cmd,udid:this.state.udid,args}));
+      setTimeout(()=>{ if(this.pending.delete(id)) rej(new Error('timed out')); },120000);
+    });
+  }
+  get live(){ return this.state.agent.status==='connected'; }
+  openMod(id){ this.setState({view:id}); this.load(id); }
+  async load(id){
+    if(!this.live) return;
+    const one=async(cmd,key,args)=>{ try{ const d=await this.send(cmd,args); this.setState(s=>({data:{...s.data,[key]:d}})); }catch(_){} };
+    if(id==='security'){ one('audit','audit'); one('profiles','profiles'); }
+    if(id==='processes') one('sysmon','sysmon',{samples:3});
+    if(id==='files') one('fs.list','files',{path:'/'});
+    if(id==='battery') one('battery.read','battery');
+    if(id==='storage') one('storage.read','storage');
+    if(id==='identity') one('info','info');
+    if(id==='backups') one('backup.open','backupInfo').catch?.(()=>{});
+  }
+  async removeProfiles(list){
+    for(const p of list){ try{ await this.send('profile.remove',{id:p.id}); }catch(_){} }
+    this.load('security');
+  }
+
+  onAttach(m,autoscan){
+    this.setState({attach:{device:m.device,trusted:m.trusted!==false}});
+    if(autoscan&&(this.props.autoScanOnAttach??true)){
+      clearTimeout(this.attachTimer);
+      this.attachTimer=setTimeout(()=>{ this.setState({attach:null}); this.runScan(); },3500);
+    }
+  }
+
+  async runScan(){
+    if(this.state.scanning) return;
+    const live=this.live;
+    const steps=[
+      ['Reading device identity',       async()=>live&&({info:await this.send('info')})],
+      ['Sampling the battery gas gauge',async()=>live&&({battery:await this.send('battery.read')})],
+      ['Measuring storage',             async()=>{ await this.probe(); return live?{storage:await this.send('storage.read')}:null; }],
+      ['Checking the network path',     async()=>null],
+      ['Reading profiles & provisioning',async()=>live&&({profiles:await this.send('profiles').catch(()=>null)})],
+      ['Auditing security posture',     async()=>live&&({audit:await this.send('audit').catch(()=>null)})],
+      ['Enumerating installed apps',    async()=>live&&({apps:await this.send('apps.list').catch(()=>null)})]
+    ];
+    this.setState({scanning:true,pct:0,step:steps[0][0]});
+    for(let i=0;i<steps.length;i++){
+      this.setState({step:steps[i][0],pct:Math.round((i/steps.length)*100)});
+      let out=null; try{ out=await steps[i][1](); }catch(_){}
+      await new Promise(r=>setTimeout(r,live?150:420));
+      if(out) this.setState(s=>({data:{...s.data,...out}}));
+    }
+    this.setState({scanning:false,pct:100,step:'Complete',lastScan:new Date()});
+  }
+
+  pick(k){
+    const real=this.state.data[k];
+    if(real) return {v:real,sample:false};
+    return {v:null,sample:false};
+  }
+
+  renderVals(){
+    const s=this.state, p=s.probe, live=this.live, go=v=>()=>this.setState({view:v});
+    const bat=this.pick('battery'), inf=this.pick('info'), sto=this.pick('storage'),
+          bak=this.pick('backups'), war=this.pick('warranty'), spy=this.pick('spyware');
+    const sec=s.data.audit, prof=s.data.profiles;
+    const tg=q=>q.sample?' · sample':'';
+    const hr=new Date().getHours();
+    const name=this.props.ownerName??'Shaya';
+
+    const MODULES=[
+      {id:'battery',name:'Battery',src:'agent',glyph:'▮',note:bat.v?bat.v.cycles+' cycles · '+bat.v.temperature+' °C'+tg(bat):'Health, cycles, temperature',
+        value:bat.v?bat.v.health+'%':'—',color:bat.v&&bat.v.health<80?ACC:INK},
+      {id:'storage',name:'Storage',src:'both',glyph:'▦',note:sto.v?fmt(sto.v.total)+' capacity'+tg(sto):'Browser quota only',
+        value:sto.v?(sto.v.free/GB).toFixed(0)+' GB free':'—',color:INK},
+      {id:'identity',name:'Device identity',src:'agent',glyph:'⌗',note:inf.v?inf.v.model+' · '+inf.v.chip+tg(inf):'Serial, UDID, ECID, chip',
+        value:inf.v?'iOS '+inf.v.ios:(p.ios?'iOS '+p.ios:'—'),color:INK},
+      {id:'backups',name:'Backups',src:'agent',glyph:'⟳',note:bak.v?fmt(bak.v.size)+' · '+(bak.v.encrypted?'encrypted':'unencrypted')+tg(bak):'Snapshot history',
+        value:bak.v?bak.v.last:'—',color:bak.v&&!bak.v.encrypted?ACC:INK},
+      {id:'spyware',name:'Spyware scan',src:'agent',glyph:'⚠',note:spy.v?spy.v.indicators+' indicators loaded'+tg(spy):'MVT + public STIX2 indicators',
+        value:spy.v?(spy.v.clean?'Clean':'Findings'):'—',color:spy.v&&!spy.v.clean?ACC:(spy.v?GOOD:INK)},
+      {id:'security',name:'Security & MDM',src:'agent',glyph:'⛨',note:sec?((sec.findings||[]).length+' findings · profiles listed'):'Profiles, MDM, entitlements — scored',
+        value:sec?sec.score+'/100':'—',color:sec?(sec.score<50?ACC:sec.score<80?WARN:GOOD):INK},
+      {id:'processes',name:'Live processes',src:'agent',glyph:'▤',note:'Per-process CPU & memory',value:live?'Live':'—',color:INK},
+      {id:'capture',name:'Packet capture',src:'agent',glyph:'≣',note:'On-device .pcap for Wireshark',value:live?'Ready':'—',color:INK},
+      {id:'files',name:'File browser',src:'agent',glyph:'▧',note:'AFC + app document containers',value:live?'Browse':'—',color:INK},
+      {id:'network',name:'Network',src:'phone',glyph:'≋',note:p.online?('Reachable'+(p.netType?' · '+p.netType:'')):'Offline',
+        value:p.latency!=null?p.latency+' ms':'—',color:INK},
+      {id:'sensors',name:'Sensors',src:'phone',glyph:'◎',note:s.motion?s.motion.hz+' Hz motion stream':'Accelerometer + gyroscope test',
+        value:s.motion?(s.motion.acc&&s.motion.gyro?'Pass':'Partial'):'Test',color:s.motion?(s.motion.acc&&s.motion.gyro?GOOD:WARN):ACC},
+      {id:'display',name:'Display & GPU',src:'phone',glyph:'◧',note:p.gpu||'Renderer, gamut, pixel density',
+        value:p.pixels||'—',color:INK},
+      {id:'warranty',name:'Support coverage',src:'agent',glyph:'✚',note:war.v?((war.v.plan||'Apple')+' · '+war.v.expires+tg(war)):'Looked up by serial number',
+        value:war.v?(war.v.covered?'Covered':'Expired'):'—',color:war.v&&!war.v.covered?ACC:INK},
+      {id:'console',name:'System console',src:'agent',glyph:'❯',note:'Live syslog_relay stream',
+        value:live?'Ready':'—',color:INK}
+    ].map(m=>({...m,open:()=>this.openMod(m.id),
+      iconBg:m.src==='phone'?'#272b25':m.src==='both'?'#2a2723':'#33241b',
+      iconFg:m.src==='phone'?'#9fb39a':m.src==='both'?'#b3aaa3':'#e2823f'}));
+
+    const mod=MODULES.find(m=>m.id===s.view);
+    const blocked=!!mod&&mod.src==='agent'&&!live;
+
+    let rows=[],gauge=null,segs=[],foot='',action=null,actionLabel='',actionNote='';
+    const R=(k,v,c)=>rows.push({k,v:(v==null||v==='')?'—':String(v),c:c||INK});
+
+    if(s.view==='battery'&&bat.v){ const b=bat.v;
+      gauge={value:b.health+'%',color:b.health<80?ACC:GOOD,
+        caption:b.health>=90?'Peak performance capability retained. Apple flags replacement below 80%.':b.health>=80?'Normal wear for this cycle count.':'Below 80% — Apple considers this battery consumed.'};
+      segs=[{w:b.health+'%',c:b.health<80?ACC:GOOD,label:'Effective '+b.fullCapacity+' mAh'},
+            {w:(100-b.health)+'%',c:'#3d3833',label:'Lost '+(b.designCapacity-b.fullCapacity)+' mAh'}];
+      R('Charge',b.percent+'%'+(b.charging?' · charging':''));
+      R('Cycle count',b.cycles); R('Design capacity',b.designCapacity+' mAh');
+      R('Effective max charge',b.fullCapacity+' mAh');
+      R('Instant amperage',(b.amperage>0?'+':'')+b.amperage+' mA',b.amperage>0?GOOD:MUT);
+      R('Voltage',(b.voltage/1000).toFixed(3)+' V');
+      R('Temperature',b.temperature+' °C',b.temperature>38?ACC:INK);
+      R('Lifetime range',b.minTemp+' °C – '+b.maxTemp+' °C');
+      R('Battery serial',b.serial); R('Cell manufacturer',b.manufacturer);
+      foot='Read from the IORegistry AppleSmartBattery node over com.apple.mobile.diagnostics_relay — the same gas-gauge counters Settings hides behind a rounded percentage.'+(bat.sample?' These are sample values; no agent has answered yet.':'');
+    }
+
+    if(s.view==='storage'){
+      if(sto.v){ const t=sto.v, pc=n=>((n/t.dataTotal)*100).toFixed(1)+'%';
+        gauge={value:(t.free/GB).toFixed(1)+' GB',color:t.free/t.dataTotal<0.1?ACC:GOOD,
+          caption:'free of '+fmt(t.dataTotal)+' usable — '+fmt(t.total)+' nominal'};
+        segs=[{w:pc(t.apps),c:'#e2823f',label:'Apps '+fmt(t.apps)},
+              {w:pc(t.photos||0),c:'#9fb39a',label:'Photos '+fmt(t.photos)},
+              {w:pc(t.media||0),c:'#6f7f8a',label:'Media '+fmt(t.media)},
+              {w:pc(t.other),c:'#6f6863',label:'System & other '+fmt(t.other)}];
+        R('Nominal capacity',fmt(t.total)); R('Usable',fmt(t.dataTotal));
+        R('Free',fmt(t.free),t.free/t.dataTotal<0.1?ACC:INK);
+      }
+      R('Browser quota for this app',fmt(p.quota));
+      R('Used by this app',fmt(p.usage));
+      R('Storage persisted',p.persisted?'Yes':'No');
+      foot='The capacity split comes from lockdown capacity keys plus per-bundle usage from installation_proxy. The quota rows are what Safari grants this PWA — the only storage numbers the phone can read unaided.'+(sto.sample?' Agent figures are sample values.':'');
+    }
+
+    if(s.view==='identity'){
+      if(inf.v){ const d=inf.v;
+        R('Name',d.name); R('Model',d.marketing); R('Identifier',d.model);
+        R('iOS',d.ios+' ('+d.build+')'); R('Serial number',d.serial); R('UDID',d.udid);
+        R('ECID',d.ecid); R('Chip',d.chip+' · '+d.cpu); R('Model number',d.modelNumber); R('Region',d.region);
+        R('Activated',d.activated?'Yes':'No',d.activated?GOOD:ACC);
+        R('Supervised',d.supervised?'Yes':'No');
+        R('Passcode set',d.passcodeSet?'Yes':'No',d.passcodeSet?GOOD:ACC);
+        R('Wi-Fi MAC',d.wifiMac); R('Bluetooth MAC',d.btMac);
+      }
+      R('Screen',p.screen); R('Guess from screen size',p.modelGuess);
+      R('iOS from user agent',p.ios||'Not an iOS browser');
+      R('CPU threads',p.threads); R('Time zone',p.tz);
+      foot='Everything above the last three rows is lockdownd GetValue over usbmux. The last rows are all the browser can infer on its own — a screen size and a user-agent string. That gap is the whole reason the agent exists.'+(inf.sample?' Agent values are sample data.':'');
+    }
+
+    if(s.view==='backups'&&bak.v){ const b=bak.v;
+      R('Last backup',b.last); R('Size',fmt(b.size));
+      R('Encrypted',b.encrypted?'Yes':'No — turn this on',b.encrypted?GOOD:ACC);
+      R('Snapshots kept',b.count); R('Oldest snapshot',b.oldest); R('Target',b.target);
+      action=()=>this.send('backup.run').catch(()=>{}); actionLabel='Back up now';
+      actionNote='Runs idevicebackup2 --full to the computer. Encrypted backups carry Health, Keychain and call history; unencrypted ones silently drop all three.';
+      foot='Backups run over com.apple.mobilebackup2 to local disk.'+(bak.sample?' Showing sample values.':'');
+    }
+
+    if(s.view==='spyware'&&spy.v){
+      gauge={value:spy.v.clean?'Clean':'Findings',color:spy.v.clean?GOOD:ACC,
+        caption:spy.v.clean?'No known indicator matched the last backup.':'One or more indicators matched — read the full report on the computer.'};
+      R('Indicators loaded',spy.v.indicators); R('Data sets checked',spy.v.sets);
+      R('Last run',spy.v.ts); R('Analysis location','On the computer, offline');
+      action=()=>{ this.setState({view:'console',consoleOn:true}); this.send('spyware.scan').catch(()=>{}); };
+      actionLabel='Run a spyware scan';
+      actionNote='Takes a local backup, then runs MVT against the public Pegasus/Predator indicator set. Expect 10–40 minutes. A clean result is evidence, not proof.';
+      foot='The engine is MVT (Mobile Verification Toolkit) from Amnesty International Security Lab, run against public STIX2 indicators. NaviOS Hub is not affiliated with or endorsed by Amnesty International.';
+    }
+
+    if(s.view==='network'){
+      R('Status',p.online?'Online':'Offline',p.online?GOOD:ACC);
+      R('Round trip to origin',p.latency!=null?p.latency+' ms':'—');
+      R('Effective type',p.netType||'Not exposed by Safari');
+      R('Downlink estimate',p.downlink?p.downlink+' Mb/s':'Not exposed by Safari');
+      R('Reported RTT',p.rtt!=null?p.rtt+' ms':'Not exposed by Safari');
+      R('Languages',p.langs); R('Time zone',p.tz);
+      foot='Measured from the phone with fetch timing. Safari does not implement the Network Information API, so the effective-type and downlink rows stay empty on iOS — the latency figure is the honest one.';
+    }
+
+    if(s.view==='sensors'){
+      if(s.motion){ R('Samples in 3s',s.motion.samples); R('Effective rate',s.motion.hz+' Hz');
+        R('Accelerometer',s.motion.acc?'Responding':'Silent',s.motion.acc?GOOD:ACC);
+        R('Gyroscope',s.motion.gyro?'Responding':'Silent',s.motion.gyro?GOOD:ACC);
+        R('Peak magnitude',s.motion.peak+' m/s²');
+      } else R('Status',s.sensorMsg||'Not run yet',s.sensorMsg?WARN:MUT);
+      R('Touch points',p.touch); R('Cameras seen',p.cams!=null?p.cams:'—'); R('Microphones seen',p.mics!=null?p.mics:'—');
+      action=()=>this.sensorTest(); actionLabel='Run the motion test';
+      actionNote='iOS asks for permission the first time. Hold the phone still for a second, then tilt it — the counter needs movement to prove the gyroscope is alive.';
+      foot='DeviceMotionEvent is one of the few real hardware paths Safari exposes. Camera and microphone counts come from enumerateDevices without labels, so they prove presence, not identity.';
+    }
+
+    if(s.view==='display'){
+      R('Logical size',p.screen); R('Device pixels',p.pixels); R('Pixel ratio',p.dpr+'×');
+      R('Renderer',p.gpu||'Hidden by the browser'); R('Colour gamut',p.gamut);
+      R('High dynamic range',p.hdr?'Yes':'No'); R('Model guess',p.modelGuess);
+      foot='Read directly from screen metrics, media queries and the WebGL renderer string. No agent needed for any of it.';
+    }
+
+    if(s.view==='warranty'&&war.v){
+      R('Covered',war.v.covered?'Yes':'No',war.v.covered?GOOD:ACC);
+      R('Plan',war.v.plan); R('Expires',war.v.expires); R('Days remaining',war.v.days);
+      R('Incidents used',war.v.repairs);
+      foot='The agent looks this up from the serial number it read over lockdown. The phone alone has no way to learn its own serial in a browser.'+(war.sample?' Sample values.':'');
+    }
+
+    if(s.view==='security'){
+      if(sec){ gauge={value:sec.score+'/100',color:sec.score>=80?GOOD:sec.score>=50?WARN:ACC,
+          caption:sec.score>=80?'No high-severity findings on the live check.':'Review the findings below — the red ones matter most.'};
+        (sec.findings||[]).forEach(f=>R(f.title,f.detail,f.level==='high'?ACC:f.level==='warn'?WARN:MUT));
+        if(!(sec.findings||[]).length) R('Posture','No profiles, no risky entitlements, no enterprise signing',GOOD);
+      }
+      const removable=((prof&&prof.profiles)||[]).filter(x=>x.removable);
+      if(removable.length){ action=()=>this.removeProfiles(removable);
+        actionLabel='Remove '+removable.length+' removable profile'+(removable.length===1?'':'s');
+        actionNote='Removes every configuration profile whose payload allows removal — the same action as Settings › General › VPN & Device Management. Profiles locked with PayloadRemovalDisallowed, and supervised / DEP-enrolled MDM, cannot be removed without the passcode or a wipe. Apple enforces that; no tool bypasses it.'; }
+      foot='Live posture check over lockdown + MCInstall + misagent — no backup needed. A clean score is not proof of a clean device.';
+    }
+    if(s.view==='processes'){
+      const sm=s.data.sysmon;
+      if(sm&&sm.processes){ sm.processes.filter(x=>x.cpu!=null).sort((a,b)=>b.cpu-a.cpu).slice(0,22)
+        .forEach(pr=>R(pr.name||('pid '+pr.pid),(pr.cpu!=null?pr.cpu.toFixed(1)+'% ':'')+(pr.memory?' · '+fmt(pr.memory):''),pr.cpu>25?ACC:INK)); }
+      foot='Sampled live from the DVT sysmontap instrument — per-process CPU and memory the phone never shows itself. iMazing has no equivalent. Needs the cable, or the iOS 17+ tunnel.';
+    }
+    if(s.view==='capture'){
+      action=()=>{ this.setState({consoleOn:true,lines:[]}); this.send('pcap',{seconds:10}).catch(()=>{}); };
+      actionLabel='Capture 10 seconds of traffic';
+      actionNote='Captures every packet every app sends, straight off the device, and writes a real .pcap you can open in Wireshark. This is what turns “is something watching me” from a guess into evidence.';
+      foot='Runs over com.apple.pcapd. The capture stays on the computer — nothing is uploaded.';
+    }
+    if(s.view==='files'){
+      const fl=s.data.files;
+      if(fl&&fl.length) fl.slice(0,40).forEach(f=>R(f.name,f.dir?'folder':fmt(f.bytes),f.dir?INK:MUT));
+      else R('/var/mobile/Media','open over AFC',MUT);
+      foot='Browsing the media partition over AFC. Per-app document containers open over House Arrest for any app that shares files.';
+    }
+    const settingsInfo=[
+      {k:'Installed to home screen',v:p.standalone?'Yes':'No'},
+      {k:'Notifications',v:s.notify==='granted'?'Allowed':s.notify==='denied'?'Blocked':'Not asked'},
+      {k:'Offline shell',v:'serviceWorker' in navigator?'Registered':'Unavailable'},
+      {k:'Agent endpoint',v:s.agentUrl?s.agentUrl.replace(/\?token=.*/,''):'None'},
+      {k:'Data policy',v:'Live reads only — nothing simulated'},
+      {k:'Last full scan',v:s.lastScan?s.lastScan.toLocaleTimeString():'Never'}
+    ];
+
+    const st=s.agent.status;
+    const A={connected:{d:'#9fb39a',t:'#9fb39a',bg:'rgba(159,179,154,.1)',bd:'#3a4438',l:'Agent live'},
+             connecting:{d:'#e0a04a',t:'#e0a04a',bg:'rgba(224,160,74,.1)',bd:'#4a3d28',l:'Connecting'},
+             offline:{d:'#8c857f',t:'#8c857f',bg:'#232120',bd:'#322e2b',l:'Agent offline'},
+             error:{d:'#e2823f',t:'#e2823f',bg:'rgba(226,130,63,.1)',bd:'#46352c',l:'Pairing failed'},
+             idle:{d:'#8c857f',t:'#8c857f',bg:'#232120',bd:'#322e2b',l:'No agent'}}[st];
+
+    const attachDev=s.attach&&s.attach.device;
+    const sampleOn=false;
+
+    return {
+      isHome:s.view==='home', isSettings:s.view==='settings', isDetail:!!mod,
+      greeting:(hr<12?'Morning, ':hr<18?'Afternoon, ':'Evening, ')+name,
+      tagline:live?'Agent live on your computer. Everything below is read from the device itself.'
+                  :'Connect the agent on your computer for the deep reads. The on-device panels work right now.',
+      agentLabel:A.l, agentDot:A.d, agentTxt:A.t, agentChipBg:A.bg, agentChipBd:A.bd,
+      agentAnim:st==='connecting'?'nvpulse 1.2s ease-in-out infinite':'none',
+      agentDetail:s.agent.detail,
+      scanCta:s.scanning?'Scanning…':'Run a full diagnostic',
+      scanCtaMeta:live?'10 checks · agent connected':'On-device checks only',
+      scanning:s.scanning, scanStep:s.step, scanPctLabel:s.pct+'%', scanPctWidth:s.pct+'%',
+      runScan:()=>this.runScan(),
+      tiles:[
+        {label:'Battery health',value:bat.v?bat.v.health+'%':'—',note:bat.v?bat.v.cycles+' cycles'+tg(bat):'Needs agent',color:bat.v&&bat.v.health<80?ACC:INK},
+        {label:'Free space',value:sto.v?(sto.v.free/GB).toFixed(0)+' GB':fmt(p.quota),note:sto.v?'of '+fmt(sto.v.dataTotal)+tg(sto):'browser quota',color:INK},
+        {label:'iOS',value:inf.v?inf.v.ios:(p.ios||'—'),note:inf.v?inf.v.marketing+tg(inf):p.modelGuess,color:INK},
+        {label:'Threats',value:spy.v?(spy.v.clean?'None':'Check'):'—',note:spy.v?spy.v.indicators+' indicators'+tg(spy):'Needs agent',color:spy.v&&!spy.v.clean?ACC:INK}
+      ],
+      modules:MODULES,
+      showInstallHint:p.standalone===false,
+      footNote:sampleOn?'Agent panels are showing clearly-labelled sample values so you can see the shape of the data. Pair the agent and every one of them fills with your real device.'
+                       :'On-device panels read live from this phone. Agent panels read over usbmux from your computer.',
+      openSettings:()=>this.setState({view:'settings'}), goHome:()=>this.setState({view:'home'}),
+
+      detailTitle:mod?mod.name:'', detailSource:mod?(mod.src==='phone'?'On device':mod.src==='both'?'Both':'Agent'):'',
+      detailSourceBg:mod?(mod.src==='phone'?'rgba(159,179,154,.14)':mod.src==='both'?'#2b2826':'rgba(226,130,63,.14)'):'',
+      detailSourceFg:mod?(mod.src==='phone'?'#9fb39a':mod.src==='both'?'#b3aaa3':'#e2823f'):'',
+      detailBlocked:blocked,
+      detailBlockedWhy:'This reads over Apple\u2019s lockdown services, which only a paired computer can reach. Start the agent and paste its pairing URL.',
+      hasGauge:!!gauge, gaugeValue:gauge?gauge.value:'', gaugeCaption:gauge?gauge.caption:'',
+      gaugeColor:gauge?gauge.color:INK, gaugeSegs:segs,
+      hasRows:rows.length>0, detailRows:rows,
+      hasConsole:s.view==='console'||s.view==='capture',
+      consoleCta:s.consoleOn?'Stop stream':'Start stream',
+      consoleCount:s.lines.length?s.lines.length+' lines':'idle',
+      consoleLines:s.lines.length?s.lines.slice(-200):(live?['waiting for syslog_relay…']:['$ agent not connected','','Start the agent on your computer and pair it in Settings.','The stream is idevicesyslog over com.apple.syslog_relay.']),
+      toggleConsole:()=>{ const on=!s.consoleOn; this.setState({consoleOn:on});
+        this.send(on?'syslog':'ping',{seconds:30}).catch(()=>{}); },
+      clearConsole:()=>this.setState({lines:[]}),
+      hasAction:!!action, detailAction:action||(()=>{}), detailActionLabel:actionLabel, detailActionNote:actionNote,
+      detailFoot:foot,
+
+      agentUrlDraft:s.urlDraft, onAgentUrl:e=>this.setState({urlDraft:e.target.value}),
+      saveAgent:()=>{ const u=s.urlDraft.trim(); try{ localStorage.setItem('navios.agentUrl',u); }catch(_){}
+        this.setState({agentUrl:u},()=>this.connect(u)); },
+      forgetAgent:()=>{ try{ localStorage.removeItem('navios.agentUrl'); }catch(_){}
+        clearTimeout(this.reconnect); try{this.ws?.close();}catch(_){}
+        this.setState({agentUrl:'',urlDraft:'',agent:{status:'idle',detail:'No agent paired yet.'}}); },
+      notifyCta:s.notify==='granted'?'Notifications allowed':'Allow notifications',
+      askNotify:async()=>{ try{ const r=await Notification.requestPermission(); this.setState({notify:r}); }catch(_){} },
+      simulateAttach:()=>this.onAttach({device:null,trusted:true},false),
+      settingsInfo,
+
+      attachOpen:!!s.attach,
+      attachTitle:(attachDev?attachDev.name:'iPhone')+' is plugged in',
+      attachSub:attachDev?(attachDev.marketing+' · iOS '+attachDev.ios+' — starting a full scan.')
+                         :'Trust this computer on the phone, then NaviOS will run a full scan.',
+      attachScanNow:()=>{ clearTimeout(this.attachTimer); this.setState({attach:null}); this.runScan(); },
+      attachDismiss:()=>{ clearTimeout(this.attachTimer); this.setState({attach:null}); }
+    };
+  }
+}
+</script>
+</body>
+</html>
